@@ -111,10 +111,10 @@ bool Autopilot::move(double forward, double left, double up,
 {
   // ARdrone -> move
   geometry_msgs::Twist moveMsg;
-  moveMsg.linear.x = forward
-  moveMsg.linear.y = left
-  moveMsg.linear.z = up
-  moveMsg.angular.z = rotateLeft
+  moveMsg.linear.x = forward // updownarrowkeys
+  moveMsg.linear.y = left // leftrightarrowkeys
+  moveMsg.linear.z = up // WSupandodwn
+  moveMsg.angular.z = rotateLeft //AD left right YAW
   pubMove_.publish(moveMsg);
   return true;
 }
