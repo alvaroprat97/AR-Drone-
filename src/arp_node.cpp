@@ -198,7 +198,7 @@ int main(int argc, char **argv)
       }
     }
 
-    SDLmessage = SDLresponse(state);
+    SDLstruct SDLmessage = SDLresponse(state);
 
     // TODO: process moving commands when in state 3,4, or 7
     if (SDLmessage.bMove = true) {
