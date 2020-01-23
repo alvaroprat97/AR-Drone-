@@ -64,22 +64,22 @@ SDLstruct SDLresponse(const Uint8 *state){
   // values are -1, 0 or +1
   // Forward & Back
   if (state[SDL_SCANCODE_UP] | state[SDL_SCANCODE_DOWN]){
-    SDLmessage.keyAarr[0] = POWER(int(state[SDL_SCANCODE_UP])-int(state[SDL_SCANCODE_DOWN]))
+    SDLmessage.keyArr[0] = POWER(int(state[SDL_SCANCODE_UP])-int(state[SDL_SCANCODE_DOWN]))
     SDLmessage.bMove = true
   }
   // Left and Right
   if (state[SDL_SCANCODE_LEFT] | state[SDL_SCANCODE_RIGHT]){
-    SDLmessage.keyAarr[1] = POWER(int(state[SDL_SCANCODE_LEFT])-int(state[SDL_SCANCODE_RIGHT]))
+    SDLmessage.keyArr[1] = POWER(int(state[SDL_SCANCODE_LEFT])-int(state[SDL_SCANCODE_RIGHT]))
     SDLmessage.bMove = true 
   }
   // Up and down
   if (state[SDL_SCANCODE_W] | state[SDL_SCANCODE_S]){
-    SDLmessage.keyAarr[2] = POWER*(int(state[SDL_SCANCODE_W])-int(state[SDL_SCANCODE_S]))
+    SDLmessage.keyArr[2] = POWER*(int(state[SDL_SCANCODE_W])-int(state[SDL_SCANCODE_S]))
     SDLmessage.bMove = true
   }
   // Yaw left Yaw right
   if (state[SDL_SCANCODE_A] | state[SDL_SCANCODE_D]){
-    SDLmessage.keyAarr[3] = POWER*(int(state[SDL_SCANCODE_A])-int(state[SDL_SCANCODE_D]))
+    SDLmessage.keyArr[3] = POWER*(int(state[SDL_SCANCODE_A])-int(state[SDL_SCANCODE_D]))
     SDLmessage.bMove = true
   }
   return SDLmessage
@@ -203,10 +203,10 @@ int main(int argc, char **argv)
     // TODO: process moving commands when in state 3,4, or 7
     if (SDLmessage.bMove = true) {
       std::cout << "Moving drone ...                       status=" << droneStatus;
-      auto forward = SDLmessage.keyAarr[0];
-      auto left = SDLmessage.keyAarr[1];
-      auto up = SDLmessage.keyAarr[2];
-      auto rotateLeft = SDLmessage.keyAarr[3];
+      auto forward = SDLmessage.keyArr[0];
+      auto left = SDLmessage.keyArr[1];
+      auto up = SDLmessage.keyArr[2];
+      auto rotateLeft = SDLmessage.keyArr[3];
       bool success = autopilot.manualMove(forward, left, up, rotateLeft);
       if (success) {
         std::cout << " [ OK ]" << std::endl;
