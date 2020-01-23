@@ -159,7 +159,16 @@ int main(int argc, char **argv)
       }
     }
 
-    // TODO: process moving commands when in state 3,4, or 7
+    TODO: process moving commands when in state 3,4, or 7
+    if (state[SDL_SCANCODE_UP]) {
+      std::cout << "Moving drone up...                       status=" << droneStatus;
+      bool success = autopilot.manualMove(0,0.5,0,0);
+      if (success) {
+        std::cout << " [ OK ]" << std::endl;
+      } else {
+        std::cout << " [FAIL]" << std::endl;
+      }
+    }
   }
 
   // make sure to land the drone...
