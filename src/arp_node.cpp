@@ -54,13 +54,13 @@ class Subscriber
 
 const double POWER = 0.5;
 
-struct SDLresponse(const Uint8 *state){
-  // values are -1, 0 or +1
-  struct SDLstruct{
-    double keyArr[4] = 0;
-    bool bMove = false;
-  }
+struct SDLstruct{
+  double keyArr[4] = 0;
+  bool bMove = false;
+}
 
+SDLstruct SDLresponse(const Uint8 *state){
+  // values are -1, 0 or +1
   SDLstruct SDLmessage;
   
   // Forward & Back
