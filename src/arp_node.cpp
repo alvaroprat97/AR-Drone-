@@ -54,12 +54,15 @@ class Subscriber
 
 const double POWER = 0.5;
 
-struct SDLresponse(const Uint8 state){
+struct SDLresponse(const Uint8 *state){
   // values are -1, 0 or +1
-  struct SDLmessage{
+  struct SDLstruct{
     double keyArr[4] = 0;
     bool bMove = false;
   }
+
+  SDLstruct SDLmessage;
+  
   // Forward & Back
   if (state[SDL_SCANCODE_UP] | state[SDL_SCANCODE_DOWN]){
     SDLmessage.keyAarr[0] = POWER(int(state[SDL_SCANCODE_UP])-int(state[SDL_SCANCODE_DOWN]))
