@@ -55,14 +55,13 @@ class Subscriber
 const double POWER = 0.5;
 
 struct SDLstruct{
-  double keyArr[4] = 0;
+  double keyArr[4] = {0};
   bool bMove = false;
 }
 
 SDLstruct SDLresponse(const Uint8 *state){
-  // values are -1, 0 or +1
   SDLstruct SDLmessage;
-  
+  // values are -1, 0 or +1
   // Forward & Back
   if (state[SDL_SCANCODE_UP] | state[SDL_SCANCODE_DOWN]){
     SDLmessage.keyAarr[0] = POWER(int(state[SDL_SCANCODE_UP])-int(state[SDL_SCANCODE_DOWN]))
@@ -199,7 +198,7 @@ int main(int argc, char **argv)
       }
     }
 
-    SDLmessage = SDLresponse();
+    SDLmessage = SDLresponse(state);
 
     // TODO: process moving commands when in state 3,4, or 7
     if (SDLmessage.bMove = true) {
