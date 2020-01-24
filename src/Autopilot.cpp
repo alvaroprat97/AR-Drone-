@@ -98,7 +98,7 @@ bool Autopilot::manualMove(double forward, double left, double up,
                            double rotateLeft)
 {
   DroneStatus status = droneStatus();
-  if (status == DroneStatus::Landed) {
+  if (status != 4 && status != 3 && status != 7) {
     return false;
   }
 
@@ -116,6 +116,7 @@ bool Autopilot::move(double forward, double left, double up,
   moveMsg.linear.z = up; // WSupandodwn
   moveMsg.angular.z = rotateLeft; //AD left right YAW
   pubMove_.publish(moveMsg);
+  
   return true;
 }
 

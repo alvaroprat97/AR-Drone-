@@ -200,20 +200,25 @@ int main(int argc, char **argv)
 
     SDLstruct SDLmessage = SDLresponse(state);
 
+	  double forward = 0;
+	  double left = 0;
+	  double up = 0;
+	  double rotateLeft = 0;	
+
     // TODO: process moving commands when in state 3,4, or 7
-    if (SDLmessage.bMove = true) {
+    if (SDLmessage.bMove == true) {
       std::cout << "Moving drone ...                       status=" << droneStatus;
-      auto forward = SDLmessage.keyArr[0];
-      auto left = SDLmessage.keyArr[1];
-      auto up = SDLmessage.keyArr[2];
-      auto rotateLeft = SDLmessage.keyArr[3];
+      forward = SDLmessage.keyArr[0];
+      left = SDLmessage.keyArr[1];
+      up = SDLmessage.keyArr[2];
+      rotateLeft = SDLmessage.keyArr[3];
+		}
       bool success = autopilot.manualMove(forward, left, up, rotateLeft);
       if (success) {
         std::cout << " [ OK ]" << std::endl;
       } else {
         std::cout << " [FAIL]" << std::endl;
       }
-    }
   }
 
   // make sure to land the drone...
