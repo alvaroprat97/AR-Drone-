@@ -38,14 +38,13 @@
       output="screen">
 		<!-- remap from="/cmd_vel" to="/cmd_vel_test"/>-->
     <!-- Camera parameters-->
-    <param name="fu" value="0" />
-    <param name="fv" value="0" />
-    <param name="cu" value="0" />
-    <param name="cv" value="0" />
-    <param name="k1" value="0" />
-    <param name="k2" value="0" />
-    <param name="p1" value="0" />
-    <param name="p2" value="0" />
+    <param name="fu" value="568.1433673232455" />
+    <param name="fv" value="566.6169242738137" />
+    <param name="cu" value="319.2055375425641" />
+    <param name="cv" value="207.10847027590424" />
+    <param name="k1" value="-0.5549822941223524" />
+    <param name="k2" value="0.34529714169979964" />
+    <param name="p1" value="-0.0005354337131921276" />
+    <param name="p2" value="-0.00026871306621705323" />
   </node>
-
 </launch>

@@ -4,7 +4,7 @@
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -45,8 +45,12 @@ namespace arp {
 // \brief cameras Namespace for camera-related functionality.
 namespace cameras {
 
+
+
+
 template<class DISTORTION_T>
-PinholeCamera<DISTORTION_T>::PinholeCamera(int imageWidth,
+
+<DISTORTION_T>::PinholeCamera(int imageWidth,
                                            int imageHeight,
                                            double focalLengthU,
                                            double focalLengthV,
@@ -69,20 +73,20 @@ PinholeCamera<DISTORTION_T>::PinholeCamera(int imageWidth,
 template<class DISTORTION_T>
 bool PinholeCamera<DISTORTION_T>::initialiseUndistortMaps() {
   const double f = (fu_ + fv_) * 0.5;
-  return initialiseUndistortMaps(imageWidth(), imageHeight(), f, f, 
+  return initialiseUndistortMaps(imageWidth(), imageHeight(), f, f,
       double(imageWidth())*0.5+0.5, double(imageHeight())*0.5+0.5);
 }
 
 // Initialise undistort maps, provide custom parameters for the undistorted cam.
 template<class DISTORTION_T>
 bool PinholeCamera<DISTORTION_T>::initialiseUndistortMaps(
-    int undistortedImageWidth, int undistortedImageHeight, 
-    double undistortedFocalLengthU, double undistortedFocalLengthV, 
+    int undistortedImageWidth, int undistortedImageHeight,
+    double undistortedFocalLengthU, double undistortedFocalLengthV,
     double undistortedImageCenterU, double undistortedImageCenterV) {
-			
+
    // store parameters
    undistortedImageWidth_ = undistortedImageWidth;
-   undistortedImageHeight_ = undistortedImageHeight; 
+   undistortedImageHeight_ = undistortedImageHeight;
    undistortedFocalLengthU_ = undistortedFocalLengthU;
    undistortedFocalLengthV_ = undistortedFocalLengthV;
    undistortedImageCenterU_ = undistortedImageCenterU;
@@ -138,21 +142,21 @@ bool PinholeCamera<DISTORTION_T>::initialiseUndistortMaps(
 
 // Get the model of the undistorted camera.
 template<class DISTORTION_T>
-PinholeCamera<NoDistortion> PinholeCamera<DISTORTION_T>::undistortedPinholeCamera() 
+PinholeCamera<NoDistortion> PinholeCamera<DISTORTION_T>::undistortedPinholeCamera()
     const {
   assert(map_x_fast_.cols !=0);
-  return PinholeCamera<NoDistortion>(undistortedImageWidth_, undistortedImageHeight_, 
+  return PinholeCamera<NoDistortion>(undistortedImageWidth_, undistortedImageHeight_,
       undistortedFocalLengthU_, undistortedFocalLengthV_,
-      undistortedImageCenterU_, undistortedImageCenterV_, 
+      undistortedImageCenterU_, undistortedImageCenterV_,
       NoDistortion());
 }
 
 // Get undistorted image -- assumes initialiseUndistortMaps was called
 template<class DISTORTION_T>
-bool PinholeCamera<DISTORTION_T>::undistortImage(const cv::Mat & srcImg, 
+bool PinholeCamera<DISTORTION_T>::undistortImage(const cv::Mat & srcImg,
                                                  cv::Mat & destImg) const {
 	assert(map_x_fast_.cols !=0);
-  cv::remap(srcImg, destImg, map_x_fast_, map_y_fast_, 
+  cv::remap(srcImg, destImg, map_x_fast_, map_y_fast_,
       cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar());
   return true;
 }
