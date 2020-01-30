@@ -176,7 +176,16 @@ CameraBase::ProjectionStatus PinholeCamera<DISTORTION_T>::project(
   bool success = distortion_.distort(imagePoint, projectionPoint); // ASK A QUESTION ABOUT RETURNING THIS!!
 
   //RESUME HERE
-    // Scale and center
+  // Scale and center
+  Eigen::Matrix2d<auto, 2, 2> focalMatrix;
+  focalMatrix << fu_, 0,
+                 0, fv_;
+
+  Eigen::Vector2d imageCenters(cu_, cv_);
+
+
+  Eigen::Vector2d u = focalMatrix*projectionPoint + imageCenters;
+
     // Check the bool success above, it is unused. Should it tho??
   // throw std::runtime_error("not implemented");
   return CameraBase::ProjectionStatus::Successful;
