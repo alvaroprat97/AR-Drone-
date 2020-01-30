@@ -45,9 +45,6 @@ namespace arp {
 // \brief cameras Namespace for camera-related functionality.
 namespace cameras {
 
-
-
-
 template<class DISTORTION_T>
 
 <DISTORTION_T>::PinholeCamera(int imageWidth,
@@ -169,9 +166,20 @@ template<class DISTORTION_T>
 CameraBase::ProjectionStatus PinholeCamera<DISTORTION_T>::project(
     const Eigen::Vector3d & point, Eigen::Vector2d * imagePoint) const
 {
-  // TODO: implement
-	throw std::runtime_error("not implemented");
-  return CameraBase::ProjectionStatus::Invalid;
+  // project points to unit image plane
+  (*imagePoint)[0] /= point[3];
+  (*imagePoint)[1] /= point[3];
+
+  Eigen::Vector2d * projectionPoint;
+  // Apply distortion model
+
+  bool success = distortion_.distort(imagePoint, projectionPoint); // ASK A QUESTION ABOUT RETURNING THIS!!
+
+  //RESUME HERE
+    // Scale and center
+    // Check the bool success above, it is unused. Should it tho??
+  // throw std::runtime_error("not implemented");
+  return CameraBase::ProjectionStatus::Successful;
 }
 
 // Projects a Euclidean point to a 2d image point (projection).
