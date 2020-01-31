@@ -165,11 +165,19 @@ template<class DISTORTION_T>
 CameraBase::ProjectionStatus PinholeCamera<DISTORTION_T>::project(
     const Eigen::Vector3d & point, Eigen::Vector2d * imagePoint) const
 {
-  // project points to unit image plane
-  (*imagePoint)[0] /= point[3];
-  (*imagePoint)[1] /= point[3];
 
-  Eigen::Vector2d projectionPoint(0,0);
+  std::cout << point << std::endl;
+
+  if (point.z() < 0){return CameraBase::ProjectionStatus::Behind;}
+  if (point.z() == 0){return CameraBase::ProjectionStatus::Invalid;}
+
+  // project points to unit image plane
+  (*imagePoint)[0] = point.x()/point.z();
+  (*imagePoint)[1] = point.y()/point.z();
+
+  std::cout << *imagePoint << std::endl;
+
+  Eigen::Vector2d projectionPoint;
   // Apply distortion model
 
   bool success = distortion_.distort(*imagePoint, &projectionPoint); // ASK A QUESTION ABOUT RETURNING THIS!!
@@ -182,11 +190,15 @@ CameraBase::ProjectionStatus PinholeCamera<DISTORTION_T>::project(
 
   Eigen::Vector2d imageCenters(cu_, cv_);
 
-  Eigen::Vector2d u = focalMatrix*projectionPoint + imageCenters;
+  *imagePoint = focalMatrix*projectionPoint + imageCenters;
 
-    // Check the bool success above, it is unused. Should it tho??
-  // throw std::runtime_error("not implemented");
+  if ((*imagePoint)[0] < 0 || (*imagePoint)[1] < 0 || (*imagePoint)[0] > imageWidth_ || (*imagePoint)[1] > imageHeight_){
+  return CameraBase::ProjectionStatus::OutsideImage;}
+
+  else{
   return CameraBase::ProjectionStatus::Successful;
+  }
+  
 }
 
 // Projects a Euclidean point to a 2d image point (projection).

@@ -59,7 +59,7 @@ class Frontend
  protected:
   AprilTags::TagDetector tagDetector_ = AprilTags::TagDetector(
       AprilTags::tagCodes36h11);
-  arp::cameras::PinholeCamera<arp::cameras::RadialTangentialDistortion>* camera_ = nullptr;
+  arp::cameras::PinholeCamera<arp::cameras::RadialTangentialDistortion>* camera_ = nullptr; // Pointer to the class camera is the null pointer for now
   std::map<int,double> idToSize_;
 };
 
