@@ -40,11 +40,24 @@ arp::cameras::PinholeCamera<arp::cameras::NoDistortion>
 
 int Frontend::detect(const cv::Mat& image, DetectionVec & detections)
 {
-	cv::Mat correctedImage;
+	cv::Mat correctedImage; // Create a dummy variable for the new image 
 	
-	cv::cvtColor(); // TODO
-	camera_.undistortImage(image, correctedImage);
-  tagDetector_.extractTags(correctedImage);
+	camera_->undistortImage(image, correctedImage); // Undistort the image and pass it to correctedImage variable 
+	
+	cv::cvtColor(image, correctedImage, CV_BGR2GRAY); // Convert 3 grayScale
+	
+	
+	std::vector<AprilTags::TagDetection> aprilTags = tagDetector_.extractTags(correctedImage); // Extract tags
+	
+	// Loop over tags and populate detections vector
+
+	for (int i=0; i<aprilTags.size(); i++) {
+		detections[i].T_CT = aprilTags[i].getRelativeTransform(idToSize_[aprilTags[i].id], camera_->focalLengthU, camera_->focalLengthV, camera_->p1_, camera_->p2_);
+		detections[i].points = aprilTags[i].p;
+		detections[i].id = aprilTags[i].id;
+		}
+	
+	
   throw std::runtime_error("not implemented");
   return 0; // TODO: number of detections...
 }
