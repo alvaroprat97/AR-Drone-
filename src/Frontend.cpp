@@ -40,7 +40,11 @@ arp::cameras::PinholeCamera<arp::cameras::NoDistortion>
 
 int Frontend::detect(const cv::Mat& image, DetectionVec & detections)
 {
-  // TODO: implement
+	cv::Mat correctedImage;
+	
+	cv::cvtColor(); // TODO
+	camera_.undistortImage(image, correctedImage);
+  tagDetector_.extractTags(correctedImage);
   throw std::runtime_error("not implemented");
   return 0; // TODO: number of detections...
 }
