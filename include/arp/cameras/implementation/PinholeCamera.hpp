@@ -46,8 +46,7 @@ namespace arp {
 namespace cameras {
 
 template<class DISTORTION_T>
-
-<DISTORTION_T>::PinholeCamera(int imageWidth,
+PinholeCamera<DISTORTION_T>::PinholeCamera(int imageWidth,
                                            int imageHeight,
                                            double focalLengthU,
                                            double focalLengthV,
@@ -170,19 +169,18 @@ CameraBase::ProjectionStatus PinholeCamera<DISTORTION_T>::project(
   (*imagePoint)[0] /= point[3];
   (*imagePoint)[1] /= point[3];
 
-  Eigen::Vector2d * projectionPoint;
+  Eigen::Vector2d projectionPoint(0,0);
   // Apply distortion model
 
-  bool success = distortion_.distort(imagePoint, projectionPoint); // ASK A QUESTION ABOUT RETURNING THIS!!
+  bool success = distortion_.distort(*imagePoint, &projectionPoint); // ASK A QUESTION ABOUT RETURNING THIS!!
 
   //RESUME HERE
   // Scale and center
-  Eigen::Matrix2d<auto, 2, 2> focalMatrix;
+  Eigen::Matrix<double, 2, 2> focalMatrix;
   focalMatrix << fu_, 0,
                  0, fv_;
 
   Eigen::Vector2d imageCenters(cu_, cv_);
-
 
   Eigen::Vector2d u = focalMatrix*projectionPoint + imageCenters;
 
