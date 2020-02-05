@@ -18,6 +18,9 @@
 
 #include <arp/Autopilot.hpp>
 
+#include <arp/Frontend.hpp>
+
+
 class Subscriber
 {
  public:
@@ -105,6 +108,11 @@ int main(int argc, char **argv)
   // set up autopilot
   arp::Autopilot autopilot(nh);
 
+  // set up Frontend
+  arp::Frontend frontend;
+  // frontend.setCameraParameters()
+
+
   // setup rendering
   SDL_Event event;
   SDL_Init(SDL_INIT_VIDEO);
@@ -132,7 +140,16 @@ int main(int argc, char **argv)
     if (subscriber.getLastImage(image)) {
 
       // TODO: add overlays to the cv::Mat image, e.g. text
-      
+      arp::Frontend::DetectionVec detectVec;
+      int numDetections = frontend.detect(image, detectVec);
+      if (numDetections>0){
+        for ( auto const &detection : detectVec){
+            autopilot.publishTag(detection);
+
+          }
+      }
+
+
       // http://stackoverflow.com/questions/22702630/converting-cvmat-to-sdl-texture
       //Convert to SDL_Surface
       IplImage opencvimg2 = (IplImage) image;
@@ -203,9 +220,9 @@ int main(int argc, char **argv)
 	  double forward = 0;
 	  double left = 0;
 	  double up = 0;
-	  double rotateLeft = 0;	
+	  double rotateLeft = 0;
 
-    // TODO: process moving commands when in state 3,4, or 7
+    // Process moving commands when in state 3,4, or 7
     if (SDLmessage.bMove == true) {
       std::cout << "Moving drone ...                       status=" << droneStatus;
       forward = SDLmessage.keyArr[0];
@@ -230,4 +247,3 @@ int main(int argc, char **argv)
   SDL_DestroyWindow(window);
   SDL_Quit();
 }
-

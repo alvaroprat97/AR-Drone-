@@ -22,6 +22,9 @@ Autopilot::Autopilot(ros::NodeHandle& nh)
   pubLand_ = nh_->advertise<std_msgs::Empty>("/ardrone/land", 1);
   pubMove_ = nh_->advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
+  // Publisher camera pose cmd
+  pubPose_ = nh_->advertise<geometry_msgs::PoseStamped>("ardrone/camera_pose", 1);
+
   // flattrim service
   srvFlattrim_ = nh_->serviceClient<std_srvs::Empty>(
       nh_->resolveName("ardrone/flattrim"), 1);
@@ -116,9 +119,31 @@ bool Autopilot::move(double forward, double left, double up,
   moveMsg.linear.z = up; // WSupandodwn
   moveMsg.angular.z = rotateLeft; //AD left right YAW
   pubMove_.publish(moveMsg);
-  
+
   return true;
 }
+// Move the drone manually.
+void Autopilot::publishTag(const Frontend::Detection & detection){
+    auto T_TC = detection.T_CT.inverse();
+    Eigen::Quaterniond quat = T_TC.q();
+    Eigen::Vector3d point = T_TC.r();
+    geometry_msgs::PoseStamped poseMsg; // quaternions float64
+
+    poseMsg.header.frame_id = "target";
+
+    poseMsg.pose.position.x = point[0];
+    poseMsg.pose.position.y = point[1];
+    poseMsg.pose.position.z = point[2];
+
+    poseMsg.pose.orientation.x = quat.x();
+    poseMsg.pose.orientation.y = quat.y();
+    poseMsg.pose.orientation.z = quat.z();
+    poseMsg.pose.orientation.w = quat.w();
+    pubPose_.publish(poseMsg);
+
+  }
+
+
+
 
 }  // namespace arp
-

@@ -17,10 +17,13 @@
 #include <image_transport/image_transport.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <ardrone_autonomy/Navdata.h>
 #include <sensor_msgs/Imu.h>
 #include <std_msgs/Empty.h>
 #include <std_srvs/Empty.h>
+
+#include <arp/Frontend.hpp>
 
 namespace arp {
 
@@ -83,6 +86,7 @@ class Autopilot {
   /// \return True on success.
   /// \note This will only do something when in manual mode and flying.
   bool manualMove(double forward, double left, double up, double rotateLeft);
+  void publishTag(const Frontend::Detection & detection);
 
  protected:
   /// \brief Move the drone.
@@ -102,6 +106,9 @@ class Autopilot {
   ros::Publisher pubTakeoff_;  ///< Publish to take-off the drone.
   ros::Publisher pubLand_;  ///< Publish to land the drone.
   ros::Publisher pubMove_; /// < Publish to Move the drone
+  ros::Publisher pubPose_; /// < Publish to Move the drone
+
+
   ros::ServiceClient srvFlattrim_;  ///< To request a flat trim calibration.
   ardrone_autonomy::Navdata lastNavdata_; ///< Store navdata as it comes in asynchronously.
   std::mutex navdataMutex_; ///< We need to lock navdata access due to asynchronous arrival.
