@@ -69,6 +69,13 @@ class RadialTangentialDistortion : public DistortionBase
     return RadialTangentialDistortion(-0.16, 0.15, 0.0003, 0.0002);
   }
 
+  virtual double get_p1(){
+      return p1_;
+  }
+
+  virtual double get_p2(){
+      return p2_;
+  }
   //////////////////////////////////////////////////////////////
   /// \name Distortion functions
   /// @{

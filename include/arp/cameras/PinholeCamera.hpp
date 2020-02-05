@@ -180,6 +180,10 @@ class PinholeCamera : public PinholeCameraBase
     return cv_;
   }
 
+  virtual distortion_t getDistortion(){
+      return distortion_;
+  }
+
   /// \brief Initialise undistort maps to defaults, i.e.
   /// undistortedFocalLengh = 0.5 * (focalLengthU() + focalLengthV()) (same for U and V), 
   /// same image dimensions and center in the middle, i.e
@@ -267,6 +271,7 @@ class PinholeCamera : public PinholeCameraBase
   {
     return distortion_.type();
   }
+
 
  protected:
 
