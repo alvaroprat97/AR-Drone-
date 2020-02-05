@@ -94,9 +94,25 @@ void PowerSDL(void){
 
 int main(int argc, char **argv)
 {
+
+  double k1; double k2; double p1; double p2;
+  double fu; double fv; double cu; double cv;
+  const int imageWidth = 640;
+  const int imageHeight = 360;
+  const double tagSize = 0.1675;
+
   ros::init(argc, argv, "arp_node");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
+
+  nh.getParam("/arp_node/k1",k1);
+  nh.getParam("/arp_node/k2",k2);
+  nh.getParam("/arp_node/p1",p1);
+  nh.getParam("/arp_node/p2",p2);
+  nh.getParam("/arp_node/fu",fu);
+  nh.getParam("/arp_node/fv",fv);
+  nh.getParam("/arp_node/cu",cu);
+  nh.getParam("/arp_node/cv",cv);
 
   // setup inputs
   Subscriber subscriber;
@@ -110,8 +126,8 @@ int main(int argc, char **argv)
 
   // set up Frontend
   arp::Frontend frontend;
-  // frontend.setCameraParameters()
-
+  frontend.setCameraParameters(imageWidth, imageHeight,
+                              fu, fv, cu, cv, k1, k2, p1, p2);
 
   // setup rendering
   SDL_Event event;
@@ -148,7 +164,6 @@ int main(int argc, char **argv)
 
           }
       }
-
 
       // http://stackoverflow.com/questions/22702630/converting-cvmat-to-sdl-texture
       //Convert to SDL_Surface
