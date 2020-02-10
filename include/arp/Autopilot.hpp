@@ -50,7 +50,7 @@ class Autopilot {
   /// \brief Get the drone status.
   /// \return The status.
   DroneStatus droneStatus();
-
+  int pose_msg_sequence;
   /// \brief Set to automatic control mode.
   void setManual();
 
@@ -107,7 +107,6 @@ class Autopilot {
   ros::Publisher pubLand_;  ///< Publish to land the drone.
   ros::Publisher pubMove_; /// < Publish to Move the drone
   ros::Publisher pubPose_; /// < Publish to Move the drone
-
 
   ros::ServiceClient srvFlattrim_;  ///< To request a flat trim calibration.
   ardrone_autonomy::Navdata lastNavdata_; ///< Store navdata as it comes in asynchronously.

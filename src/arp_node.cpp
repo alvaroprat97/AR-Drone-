@@ -17,8 +17,10 @@
 #include <std_srvs/Empty.h>
 
 #include <arp/Autopilot.hpp>
-
 #include <arp/Frontend.hpp>
+#include <arp/cameras/PinholeCamera.hpp>
+#include <arp/cameras/RadialTangentialDistortion.hpp>
+
 
 
 class Subscriber
@@ -124,11 +126,16 @@ int main(int argc, char **argv)
   // set up autopilot
   arp::Autopilot autopilot(nh);
 
+  // Create pincamera instance
+  arp::cameras::RadialTangentialDistortion radDistort(k1,k2,p1,p2);
+  arp::cameras::PinholeCamera<arp::cameras::RadialTangentialDistortion> pinCam(imageWidth, imageHeight,
+                              fu, fv, cu, cv, radDistort);
+  pinCam.initialiseUndistortMaps();
   // set up Frontend
   arp::Frontend frontend;
   frontend.setCameraParameters(imageWidth, imageHeight,
                               fu, fv, cu, cv, k1, k2, p1, p2);
-
+  frontend.setTarget(0, tagSize);
   // setup rendering
   SDL_Event event;
   SDL_Init(SDL_INIT_VIDEO);
@@ -153,18 +160,23 @@ int main(int argc, char **argv)
 
     // render image, if there is a new one available
     cv::Mat image;
+    cv::Mat image_undistorted;
     if (subscriber.getLastImage(image)) {
+
+      pinCam.undistortImage(image, image_undistorted);
+
 
       // TODO: add overlays to the cv::Mat image, e.g. text
       arp::Frontend::DetectionVec detectVec;
-      int numDetections = frontend.detect(image, detectVec);
+      int numDetections = frontend.detect(image_undistorted, detectVec);
       if (numDetections>0){
+        std::cout << "Objects detected" << std::endl;
         for ( auto const &detection : detectVec){
             autopilot.publishTag(detection);
 
           }
       }
-
+      image = image_undistorted;
       // http://stackoverflow.com/questions/22702630/converting-cvmat-to-sdl-texture
       //Convert to SDL_Surface
       IplImage opencvimg2 = (IplImage) image;
@@ -246,11 +258,11 @@ int main(int argc, char **argv)
       rotateLeft = SDLmessage.keyArr[3];
 		}
       bool success = autopilot.manualMove(forward, left, up, rotateLeft);
-      if (success) {
-        std::cout << " [ OK ]" << std::endl;
-      } else {
-        std::cout << " [FAIL]" << std::endl;
-      }
+      // if (success) {
+      //   std::cout << " [ OK ]" << std::endl;
+      // } else {
+      //   std::cout << " [FAIL]" << std::endl;
+      // }
   }
 
   // make sure to land the drone...

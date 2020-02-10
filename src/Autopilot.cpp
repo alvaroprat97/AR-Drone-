@@ -15,7 +15,6 @@ Autopilot::Autopilot(ros::NodeHandle& nh)
   // receive navdata
   subNavdata_ = nh.subscribe("ardrone/navdata", 50, &Autopilot::navdataCallback,
                              this);
-
   // commands
   pubReset_ = nh_->advertise<std_msgs::Empty>("/ardrone/reset", 1);
   pubTakeoff_ = nh_->advertise<std_msgs::Empty>("/ardrone/takeoff", 1);
@@ -24,6 +23,8 @@ Autopilot::Autopilot(ros::NodeHandle& nh)
 
   // Publisher camera pose cmd
   pubPose_ = nh_->advertise<geometry_msgs::PoseStamped>("ardrone/camera_pose", 1);
+
+  pose_msg_sequence = 0;
 
   // flattrim service
   srvFlattrim_ = nh_->serviceClient<std_srvs::Empty>(
@@ -124,21 +125,36 @@ bool Autopilot::move(double forward, double left, double up,
 }
 // Move the drone manually.
 void Autopilot::publishTag(const Frontend::Detection & detection){
-    auto T_TC = detection.T_CT.inverse();
-    Eigen::Quaterniond quat = T_TC.q();
-    Eigen::Vector3d point = T_TC.r();
     geometry_msgs::PoseStamped poseMsg; // quaternions float64
+    std_msgs::Header header;
+    geometry_msgs::Pose pose;
 
-    poseMsg.header.frame_id = "target";
+    kinematics::Transformation T_TC = detection.T_CT.inverse();
+    Eigen::Quaterniond q_quat = T_TC.q();
+    Eigen::Vector3d r_point = T_TC.r();
 
-    poseMsg.pose.position.x = point[0];
-    poseMsg.pose.position.y = point[1];
-    poseMsg.pose.position.z = point[2];
+    header.frame_id = "target";
+    header.stamp.sec = (int) time(NULL);
+    header.seq = pose_msg_sequence; pose_msg_sequence ++;
+    poseMsg.header = header;
 
-    poseMsg.pose.orientation.x = quat.x();
-    poseMsg.pose.orientation.y = quat.y();
-    poseMsg.pose.orientation.z = quat.z();
-    poseMsg.pose.orientation.w = quat.w();
+    geometry_msgs::Point point;
+
+    point.x = r_point[0];
+    point.y = r_point[1];
+    point.z = r_point[2];
+
+    geometry_msgs::Quaternion quat;
+
+    quat.x = q_quat.x();
+    quat.y = q_quat.y();
+    quat.z = q_quat.z();
+    quat.w = q_quat.w();
+
+    pose.position = point;
+    pose.orientation = quat;
+    poseMsg.pose = pose;
+
     pubPose_.publish(poseMsg);
 
   }

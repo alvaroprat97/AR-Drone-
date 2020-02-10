@@ -32,7 +32,7 @@ void Frontend::setCameraParameters(int imageWidth, int imageHeight,
 }
 
 // the undistorted camera model used for the estimator (later)
-arp::cameras::PinholeCamera<arp::cameras::NoDistortion> 
+arp::cameras::PinholeCamera<arp::cameras::NoDistortion>
     Frontend::undistortedCameraModel() const {
   assert(camera_);
   return camera_->undistortedPinholeCamera();
@@ -40,18 +40,20 @@ arp::cameras::PinholeCamera<arp::cameras::NoDistortion>
 
 int Frontend::detect(const cv::Mat& image, DetectionVec & detections)
 {
+/*
+  detections.clear();
 
-	cv::Mat correctedImage; // Create a dummy variable for the new image 
-	
-	camera_->undistortImage(image, correctedImage); // Undistort the image and pass it to correctedImage variable 
-	
+	cv::Mat correctedImage; // Create a dummy variable for the new image
+
+	camera_->undistortImage(image, correctedImage); // Undistort the image and pass it to correctedImage variable
+
 	cv::cvtColor(image, correctedImage, CV_BGR2GRAY); // Convert 3 grayScale
-	
+
 	std::vector<AprilTags::TagDetection> aprilTags = tagDetector_.extractTags(correctedImage); // Extract tags
-	
+
 	// Loop over tags and populate detections vector
 
-        int counter = 0;
+  int counter = 0;
 
 	for (int i=0; i<aprilTags.size(); i++) {
 
@@ -82,8 +84,60 @@ int Frontend::detect(const cv::Mat& image, DetectionVec & detections)
            counter ++;
         }
       }
-	
+      std::cout << counter << std::endl;
+
   return counter; // TODO: number of detections...
+  */
+
+  // Clear detections
+detections.clear();
+//undistort the input image and transform to grayscale
+cv::Mat undistorted_grey_image;
+cv::Mat distorted_grey_image;
+cv::cvtColor(image, distorted_grey_image, CV_BGR2GRAY);
+camera_->undistortImage(distorted_grey_image,undistorted_grey_image);
+double fu = camera_->undistortedPinholeCamera().focalLengthU();
+double fv = camera_->undistortedPinholeCamera().focalLengthV();
+double cu = camera_->undistortedPinholeCamera().imageCenterU();
+double cv = camera_->undistortedPinholeCamera().imageCenterV();
+
+//Extract AprilTags ie. get raw detactions using tagDetector_
+std::vector<AprilTags::TagDetection> rawdetections = tagDetector_.extractTags(undistorted_grey_image);
+
+
+for (auto const& rawdetection: rawdetections)
+{
+    int detected_ID = rawdetection.id;
+    if (idToSize_.find(detected_ID) == idToSize_.end())
+    {
+      // id not found
+      continue;
+    } else {
+      float targetSize = idToSize_[detected_ID];
+      Eigen::Matrix4d transform = rawdetection.getRelativeTransform(targetSize,fu, fv, cu, cv);
+      Detection detection; // maybe add arp:: etc.
+      //std::cout << "transform T_CT:" << transform;
+      detection.T_CT = kinematics::Transformation(transform);
+      //std::cout << "deection T_CT:" << kinematics::Transformation(transform).T();
+
+      const std::pair<float, float> *pi = rawdetection.p;
+      Eigen::Matrix<double, 2, 4> matrix;
+
+      matrix(0,0) = pi[0].first;
+      matrix(0,1) = pi[1].first;
+      matrix(0,2) = pi[2].first;
+      matrix(0,3) = pi[3].first;
+      matrix(1,0) = pi[0].second;
+      matrix(1,1) = pi[1].second;
+      matrix(1,2) = pi[2].second;
+      matrix(1,3) = pi[3].second;
+      //std::cout<< "Matrix: " << matrix;
+      detection.points = matrix;
+      detection.id = detected_ID;
+      detections.push_back(detection);
+    }
+}
+return detections.size();
 }
 
 bool Frontend::setTarget(unsigned int id, double targetSizeMeters) {
@@ -92,4 +146,3 @@ bool Frontend::setTarget(unsigned int id, double targetSizeMeters) {
 }
 
 }  // namespace arp
-
