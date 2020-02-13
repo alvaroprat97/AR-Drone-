@@ -40,39 +40,36 @@ arp::cameras::PinholeCamera<arp::cameras::NoDistortion>
 
 int Frontend::detect(const cv::Mat& image, DetectionVec & detections)
 {
-/*
+
   detections.clear();
+	cv::Mat grayImage; // Create a dummy variable for the new image
+  cv::Mat correctedImage
+  cv::cvtColor(image, grayImage, CV_BGR2GRAY); // Convert 3 grayScale
+	camera_->undistortImage(grayImage, correctedImage); // Undistort the image and pass it to correctedImage variable
 
-	cv::Mat correctedImage; // Create a dummy variable for the new image
+  // Retreive tags
+  std::vector<AprilTags::TagDetection> aprilTags = tagDetector_.extractTags(correctedImage); // Extract tags
 
-	camera_->undistortImage(image, correctedImage); // Undistort the image and pass it to correctedImage variable
+  // Loop over tags and populate detections vector
 
-	cv::cvtColor(image, correctedImage, CV_BGR2GRAY); // Convert 3 grayScale
+	for (auto const& detection_raw: detections_raw) {
 
-	std::vector<AprilTags::TagDetection> aprilTags = tagDetector_.extractTags(correctedImage); // Extract tags
-
-	// Loop over tags and populate detections vector
-
-  int counter = 0;
-
-	for (int i=0; i<aprilTags.size(); i++) {
-
-            auto detection = aprilTags[i];
-
-            if (idToSize_.find(detection.id) == idToSize_.end()){
+            int detectedID = detection_raw.id;
+            if (idToSize_.find(detection_raw.id) == idToSize_.end()){
             continue; // ID is not found
-
             } else {
 
-            detections[counter].id = detection.id;
-            // auto dist = camera_->getDistortion();
-            Eigen::Matrix4d transform = detection.getRelativeTransform(idToSize_[detection.id],
+            // Create a Detection Instance
+            Detection detection;
+            detection.ID = detectedID;
+
+            Eigen::Matrix4d transform = detection_raw.getRelativeTransform(idToSize_[detectedID],
                         camera_->focalLengthU(), camera_->focalLengthU(),
                         camera_->imageCenterU(), camera_->imageCenterV());
 
-            detections[counter].T_CT = kinematics::Transformation(transform);
+            detection.T_CT = kinematics::Transformation(transform);
 
-            const std::pair<float ,float> *pair = detection.p;
+            const std::pair<float ,float> *pair = detection_raw.p;
             Eigen::Matrix<double, 2, 4> point_matx;
 
             for (int j = 0; j<3; j++){
@@ -80,15 +77,14 @@ int Frontend::detect(const cv::Mat& image, DetectionVec & detections)
                 point_matx(1,j) = pair[j].second;
             }
 
-           detections[counter].points = point_matx;
-           counter ++;
+           detection.points = point_matx;
+           detections.push_back(detection);
         }
       }
-      std::cout << counter << std::endl;
 
-  return counter; // TODO: number of detections...
-  */
-
+  return detections.size();
+}
+/*
   // Clear detections
 detections.clear();
 //undistort the input image and transform to grayscale
@@ -139,7 +135,7 @@ for (auto const& rawdetection: rawdetections)
 }
 return detections.size();
 }
-
+*/
 bool Frontend::setTarget(unsigned int id, double targetSizeMeters) {
   idToSize_[id] = targetSizeMeters;
   return true;
