@@ -10,6 +10,12 @@
 #include <arp/ViEkf.hpp>
 #include <arp/kinematics/Imu.hpp>
 
+/*CONSIDER
+3.1.1 PREDICTION
+  Imu runs much faster than the camera therefore several prediction steps exectuded.
+  "predict" does as many predictions from_timestamMicrosconds to to_timestamMicroseconds. 
+*/
+
 namespace arp {
 
 ViEkf::ViEkf()
@@ -180,13 +186,14 @@ bool ViEkf::predict(uint64_t from_timestampMicroseconds,
 {
   for (auto it_k_minus_1 = imuMeasurementDeque_.begin();
       it_k_minus_1 != imuMeasurementDeque_.end(); ++it_k_minus_1) {
+
     auto it_k = it_k_minus_1;
     it_k++;
     if (it_k == imuMeasurementDeque_.end()) {
       break;  // we reached the buffer end...
     }
 
-    // ensure we're in the right segment
+    // ensure we're in the right segment of time
     if (it_k->timestampMicroseconds < from_timestampMicroseconds
         || it_k->timestampMicroseconds >= to_timestampMicroseconds) {
       continue;
